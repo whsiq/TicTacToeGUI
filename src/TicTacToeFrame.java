@@ -1,7 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.Scanner;
 
 public class TicTacToeFrame extends JFrame {
 
@@ -33,6 +32,14 @@ public class TicTacToeFrame extends JFrame {
 
     JButton quitBtn;
 
+
+    private static final int ROW = 3;
+    private static final int COL = 3;
+    private static TicTacToeButton[][] board = new TicTacToeButton[ROW][COL];
+
+    static int moveCnt = 0;
+    static String player = "X";
+
     public TicTacToeFrame() {
         Toolkit kit = Toolkit.getDefaultToolkit();
         Dimension screenSize = kit.getScreenSize();
@@ -63,31 +70,41 @@ public class TicTacToeFrame extends JFrame {
         boardPnl.setLayout(new GridLayout(3, 3));
 
         nwBtn = new TicTacToeButton(0,0);
+        board[0][0] = nwBtn;
         nwBtn.addActionListener((ActionEvent ae) -> gameLogic(nwBtn.getRow(), nwBtn.getCol()));
 
         nBtn = new TicTacToeButton(0,1);
+        board[0][1] = nBtn;
         nBtn.addActionListener((ActionEvent ae) -> gameLogic(nBtn.getRow(), nBtn.getCol()));
 
         neBtn = new TicTacToeButton(0,2);
+        board[0][2] = neBtn;
         neBtn.addActionListener((ActionEvent ae) -> gameLogic(neBtn.getRow(), neBtn.getCol()));
 
         wBtn = new TicTacToeButton(1,0);
+        board[1][0] = wBtn;
         wBtn.addActionListener((ActionEvent ae) -> gameLogic(wBtn.getRow(), wBtn.getCol()));
 
         cBtn = new TicTacToeButton(1,1);
+        board[1][1] = cBtn;
         cBtn.addActionListener((ActionEvent ae) -> gameLogic(cBtn.getRow(), cBtn.getCol()));
 
         eBtn = new TicTacToeButton(1, 2);
+        board[1][2] = eBtn;
         eBtn.addActionListener((ActionEvent ae) -> gameLogic(eBtn.getRow(), eBtn.getCol()));
 
         swBtn = new TicTacToeButton(2,0);
+        board[2][0] = swBtn;
         swBtn.addActionListener((ActionEvent ae) -> gameLogic(swBtn.getRow(), swBtn.getCol()));
 
         sBtn = new TicTacToeButton(2,1);
+        board[2][1] = sBtn;
         sBtn.addActionListener((ActionEvent ae) -> gameLogic(sBtn.getRow(), sBtn.getCol()));
 
         seBtn = new TicTacToeButton(2,2);
+        board[2][2] = seBtn;
         seBtn.addActionListener((ActionEvent ae) -> gameLogic(seBtn.getRow(), seBtn.getCol()));
+        clearBoard();
 
         boardPnl.add(nwBtn);
         boardPnl.add(nBtn);
@@ -113,80 +130,63 @@ public class TicTacToeFrame extends JFrame {
     }
 
     // Game Logic
-    private static final int ROW = 3;
-    private static final int COL = 3;
-    private static TicTacToeButton[][] board = new TicTacToeButton[ROW][COL];
 
     public static void gameLogic(int row, int col)
     {
         boolean finished = false;
         boolean playing = true;
-        Scanner in = new Scanner(System.in);
-        String player = "X";
-        int moveCnt = 0;
-        //int row = -1;
-        //int col = -1;
         final int MOVES_FOR_WIN = 5;
         final int MOVES_FOR_TIE = 7;
-        do // program loop
-        {
-            //begin a game
-            player = "X";
-            playing = true;
-            moveCnt = 0;
-            clearBoard();
-            do  // game loop
-            {
-                // get the move
-                do
-                {
-                    JOptionPane.showMessageDialog(null, "Invalid Move: Please choose a different option.");
-                    // Further Elaboration ^^
-                    //display();
-                    //row--; col--;
-                }while(!isValidMove(row, col));
-                board[row][col].setText(player); // Might have to modify this part. Should change text in selected JButton
-                moveCnt++;
 
-                if(moveCnt >= MOVES_FOR_WIN)
+        if (!isValidMove(row, col)) {
+            JOptionPane.showMessageDialog(null, "Invalid Move: Please choose a different option.");
+        }
+        else {
+            board[row][col].setText(player);
+            moveCnt++;
+
+            if(moveCnt >= MOVES_FOR_WIN)
+            {
+                if(isWin(player))
                 {
-                    if(isWin(player))
-                    {
-                        //display();
-                        //System.out.println("Player " + player + " wins!");
-                        JOptionPane.showConfirmDialog(null, "You Win! Would you like to play again?");
-                        // Further Elaboration required on this to play again ^^
-                        playing = false;
-                    }
+                    JOptionPane.showMessageDialog(null, "Player " + player + " wins!");
+                    playing = false;
                 }
-                if(moveCnt >= MOVES_FOR_TIE)
-                {
-                    if(isTie())
-                    {
-                        //display();
-                        System.out.println("It's a Tie!");
-                        JOptionPane.showConfirmDialog(null, "Board is full, Tie game! Play again?");
-                        // further elaboration ^^
-                        playing = false;
-                    }
+                if(isTie()) {
+                    JOptionPane.showMessageDialog(null, "Tie Game: Board is not full");
+                    playing = false;
                 }
-                if(player.equals("X"))
+            }
+            if(moveCnt >= MOVES_FOR_TIE)
+            {
+                if(isTie())
                 {
-                    player = "O";
+                    JOptionPane.showMessageDialog(null, "Tie Game: Board is full");
+                    playing = false;
                 }
-                else
-                {
+            }
+            if(player.equals("X"))
+            {
+                player = "O";
+            }
+            else
+            {
+                player = "X";
+            }
+
+            if(!playing) {
+                int selection = JOptionPane.showConfirmDialog(null, "Play Again?", "Game Over", JOptionPane.YES_NO_OPTION);
+                if (selection == 0) {
+                    clearBoard();
+                    moveCnt = 0;
                     player = "X";
                 }
+                else {
+                    System.exit(0);
+                }
 
-            }while(playing);
-
-            //finished = SafeInput.getYNConfirm(in, "Done Playing? ");
-            JOptionPane.showConfirmDialog(null, "Would you like to play again?");
-            // more further elaboration^^
-        }while(!finished);
-
-
+            }
+        }
     }
 
     private static void clearBoard()
@@ -200,20 +200,6 @@ public class TicTacToeFrame extends JFrame {
             }
         }
     }
-//    private static void display()
-//    {
-//        // shows the Tic Tac Toe game
-//        for(int row=0; row < ROW; row++)
-//        {
-//            System.out.print("| ");
-//            for(int col=0; col < COL; col++)
-//            {
-//                System.out.print(board[row][col] + " | ");
-//            }
-//            System.out.println();
-//        }
-//
-//    }
     private static boolean isValidMove(int row, int col)
     {
         boolean retVal = false;
