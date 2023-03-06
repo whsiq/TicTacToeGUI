@@ -133,7 +133,6 @@ public class TicTacToeFrame extends JFrame {
 
     public static void gameLogic(int row, int col)
     {
-        boolean finished = false;
         boolean playing = true;
         final int MOVES_FOR_WIN = 5;
         final int MOVES_FOR_TIE = 7;
